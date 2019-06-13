@@ -98,7 +98,7 @@ services:
       - mysql:mysql
 
   minio:
-    image: minio/minio
+    image: minio/minio:RELEASE.2019-06-13T01-41-13Z
     restart: unless-stopped
     logging: *default-logging
     command: server /export

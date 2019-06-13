@@ -20,8 +20,8 @@ services:
       - ES_HOST=${ES_HOST}
       - ES_INDEX=${ES_INDEX}
       - ES_CONTROL_INDEX=${ES_CONTROL_INDEX}
-      - API_LOGFILE_PATH=${API_LOGFILE_PATH}
-      - API_DEBUGGING=${API_DEBUGGING:-0}
+      - LOGFILE_PATH=${API_LOGFILE_PATH}
+      - DEBUGGING=${API_DEBUGGING:-0}
     ports:
       - 5000:5000
     volumes:
@@ -46,7 +46,7 @@ services:
       - ES_HOST=${ES_HOST}
       - ES_INDEX=${ES_INDEX}
       - ES_CONTROL_INDEX=${ES_CONTROL_INDEX}
-      - LOGFILE_PATH=${LOGFILE_PATH}
+      - LOGFILE_PATH=${API_LOGFILE_PATH}
     ports:
       - 5001:5000
     volumes:

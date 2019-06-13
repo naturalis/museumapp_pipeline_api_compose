@@ -1,0 +1,121 @@
+version: '3.4'
+
+x-logging:
+  &default-logging
+  options:
+    max-size: '10m'
+    max-file: '5'
+  driver: json-file
+
+services:
+  api:
+    restart: on-failure:5
+    image: naturalis/museumapp_backend_api:v0.1
+    environment:
+      - API_USER=${API_USER}
+      - API_PASS=${API_PASS}
+      - API_USERID=${API_USERID}
+      - JWT_KEY=${JWT_KEY}
+      - ES_PORT=${ES_PORT}
+      - ES_HOST=${ES_HOST}
+      - ES_INDEX=${ES_INDEX}
+      - ES_CONTROL_INDEX=${ES_CONTROL_INDEX}
+      - LOGFILE_PATH=${LOGFILE_PATH}
+      - DEBUGGING=${DEBUGGING:-0}
+    ports:
+      - 5000:5000
+    volumes:
+      - /data:/data
+    links:
+      - elastic:elastic
+
+  elastic:
+    restart: on-failure:5
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    volumes:
+      - /data/es-data:/usr/share/elasticsearch/data
+
+  elastic_control:
+    image: naturalis/museumapp_elastic_control:v0.1
+    environment:
+      - ES_PORT=${ES_PORT}
+      - ES_HOST=${ES_HOST}
+      - ES_INDEX=${ES_INDEX}
+      - ES_CONTROL_INDEX=${ES_CONTROL_INDEX}
+      - LOGFILE_PATH=${LOGFILE_PATH}
+    ports:
+      - 5001:5000
+    volumes:
+      - /data:/data
+    links:
+      - elastic:elastic
+
+  mysql:
+    image: "mysql:5.7"
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      # MYSQL_DATABASE: ${MYSQL_DATABASE:-reaper}
+      # MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
+        max-file: '5'
+    networks:
+      - default
+    ports:
+        - "${MYSQL_EXTERNAL_PORT:-3307}:3306"
+    volumes:
+      # - /data/mysql/mysqlconf:/etc/mysql/conf.d
+      - /data/mysql/initdb:/docker-entrypoint-initdb.d
+      - /data/mysql/db:/var/lib/mysql
+      - /data/mysql/mysqllog:/var/log/mysql
+
+  reaper:
+    image: naturalis/museumapp_reaper:latest
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-reaper}
+      REAPER_FILE_BASE_PATH: ${REAPER_FILE_BASE_PATH:-/Users/ruud/PHPStorm projects/reaper/files/}
+      REAPER_FILE_TENTOONSTELLING_CSV: ${REAPER_FILE_TENTOONSTELLING_CSV:-tentoonstelling.csv}
+      REAPER_FILE_CRS_CSV: ${REAPER_FILE_CRS_CSV:-crs-images.csv}
+      REAPER_URL_TOPSTUKKEN: ${REAPER_URL_TOPSTUKKEN:-https://topstukken.naturalis.nl/}
+      REAPER_URL_TTIK: ${REAPER_URL_TTIK:-https://ttik.linnaeus.naturalis.nl/linnaeus_ng/app/views/webservices/}
+      REAPER_URL_IUCN: ${REAPER_URL_IUCN:-https://apiv3.iucnredlist.org/api/v3/species/%s}
+      REAPER_KEY_IUCN: ${REAPER_KEY_IUCN}
+      REAPER_URL_NATUURWIJZER: ${REAPER_URL_NATUURWIJZER:-https://natuurwijzer-acc.naturalis.nl/api/v2/}
+      REAPER_USER_NATUURWIJZER: ${REAPER_USER_NATUURWIJZER:-natuurwijzer}
+      REAPER_PASSWORD_NATUURWIJZER: ${REAPER_PASSWORD_NATUURWIJZER:-wijzernatuur}
+      REAPER_TOKEN_NATUURWIJZER: ${REAPER_TOKEN_NATUURWIJZER}
+    links:
+      - mysql:mysql
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    logging: *default-logging
+    command: server /export
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_USER}
+      MINIO_SECRET_KEY: ${MINIO_PASS}
+      # MINIO_DOMAIN: s3.waarneming.ppdb.naturalis.nl
+    volumes:
+    - "${MINIO_DATA_DIR:-/data/minio}:/export"
+    ports:
+      - 9000:9000
+
+  image_chooser:
+      # image: php:7.2.1-apache
+      image: naturalis/museum_object_image_chooser:latest 
+      ports:
+          - 8080:80
+      volumes:
+          - /data/image_chooser:/data
+

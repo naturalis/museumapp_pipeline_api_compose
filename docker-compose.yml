@@ -111,11 +111,11 @@ services:
     ports:
       - 9000:9000
 
-  image_chooser:
-      # image: php:7.2.1-apache
-      image: naturalis/museum_object_image_chooser:latest 
-      ports:
-          - 8080:80
-      volumes:
-          - /data/image_chooser:/data
+  # image_chooser:
+  #     # image: php:7.2.1-apache
+  #     image: naturalis/museum_object_image_chooser:latest 
+  #     ports:
+  #         - 8080:80
+  #     volumes:
+  #         - /data/image_chooser:/data
 

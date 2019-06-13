@@ -20,8 +20,8 @@ services:
       - ES_HOST=${ES_HOST}
       - ES_INDEX=${ES_INDEX}
       - ES_CONTROL_INDEX=${ES_CONTROL_INDEX}
-      - LOGFILE_PATH=${LOGFILE_PATH}
-      - DEBUGGING=${DEBUGGING:-0}
+      - API_LOGFILE_PATH=${API_LOGFILE_PATH}
+      - API_DEBUGGING=${API_DEBUGGING:-0}
     ports:
       - 5000:5000
     volumes:
@@ -107,15 +107,17 @@ services:
       MINIO_SECRET_KEY: ${MINIO_PASS}
       # MINIO_DOMAIN: s3.waarneming.ppdb.naturalis.nl
     volumes:
-    - "${MINIO_DATA_DIR:-/data/minio}:/export"
+      - "${MINIO_DATA_DIR:-/data/minio}:/export"
     ports:
       - 9000:9000
 
-  # image_chooser:
-  #     # image: php:7.2.1-apache
-  #     image: naturalis/museum_object_image_chooser:latest 
-  #     ports:
-  #         - 8080:80
-  #     volumes:
-  #         - /data/image_chooser:/data
+  image_selector:
+    image: naturalis/museumapp_image_selector:latest
+    ports:
+      - 8080:80
+    volumes:
+      - /data/image_chooser:/data
+    environment:
+      IMAGE_SELECTOR_PATH: ${IMAGE_SELECTOR_PATH}
+      IMAGE_SELECTOR_BAK_PATH: ${IMAGE_SELECTOR_BAK_PATH}
 

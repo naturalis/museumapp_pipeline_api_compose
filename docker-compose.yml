@@ -10,7 +10,7 @@ x-logging:
 services:
   api:
     restart: on-failure:5
-    image: naturalis/museumapp_backend_api:v0.1
+    image: naturalis/museumapp_pipeline_api:latest
     environment:
       - API_USER=${API_USER}
       - API_PASS=${API_PASS}

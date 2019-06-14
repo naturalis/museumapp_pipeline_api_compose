@@ -116,7 +116,7 @@ services:
     ports:
       - 8080:80
     volumes:
-      - /data/image_chooser:/data
+      - /data/image_selector:/data
     environment:
       IMAGE_SELECTOR_PATH: ${IMAGE_SELECTOR_PATH}
       IMAGE_SELECTOR_BAK_PATH: ${IMAGE_SELECTOR_BAK_PATH}

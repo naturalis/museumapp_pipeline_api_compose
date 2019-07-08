@@ -125,6 +125,18 @@ services:
       IMAGE_SELECTOR_AUTH_USER: ${IMAGE_SELECTOR_AUTH_USER}
       IMAGE_SELECTOR_AUTH_PASS: ${IMAGE_SELECTOR_AUTH_PASS}
 
+  image_squares:
+    image: naturalis/museumapp_image_squares:latest
+    ports:
+      - 8081:80
+    volumes:
+      - /data:/data
+    environment:
+      IMAGE_SQUARES_PATH: ${IMAGE_SELECTOR_PATH}
+      IMAGE_SQUARES_BAK_PATH: ${IMAGE_SELECTOR_BAK_PATH}
+      IMAGE_SELECTOR_AUTH_USER: ${IMAGE_SELECTOR_AUTH_USER}
+      IMAGE_SELECTOR_AUTH_PASS: ${IMAGE_SELECTOR_AUTH_PASS}
+
   pipeline:
     image: naturalis/museumapp_pipeline:latest
     ports:

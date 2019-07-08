@@ -140,7 +140,7 @@ services:
   pipeline:
     image: naturalis/museumapp_pipeline:latest
     ports:
-      - 8081:80
+      - 8082:80
     volumes:
       - /data:/data
     environment:

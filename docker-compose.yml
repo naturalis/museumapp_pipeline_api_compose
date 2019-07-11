@@ -99,6 +99,19 @@ services:
     links:
       - mysql:mysql
 
+
+  nba_harvester:
+    image: naturalis/museumapp_nba_harvester:latest
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - /data:/data
+    links:
+      - mysql:mysql
+
   minio:
     image: minio/minio:RELEASE.2019-06-13T01-41-13Z
     restart: unless-stopped

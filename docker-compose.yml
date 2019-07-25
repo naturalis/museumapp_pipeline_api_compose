@@ -176,6 +176,7 @@ services:
       JSON_PUBLISH_PATH: ${JSON_PUBLISH_PATH}
       PIPELINE_AUTH_USER: ${PIPELINE_AUTH_USER}
       PIPELINE_AUTH_PASS: ${PIPELINE_AUTH_PASS}
+      PIPELINE_DEBUG: ${PIPELINE_DEBUG:-false}
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.1.0

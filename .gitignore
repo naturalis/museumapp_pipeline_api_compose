@@ -1,5 +1,2 @@
 .env
-start.sh
-stop.sh
-pull.sh
-mysql.sh
+*.sh

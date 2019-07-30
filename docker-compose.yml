@@ -31,7 +31,8 @@ services:
 
   elastic:
     restart: on-failure:5
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
+    # image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
     environment:
       - discovery.type=single-node
     ports:

@@ -76,6 +76,7 @@ services:
       - /data/mysql/initdb:/docker-entrypoint-initdb.d
       - /data/mysql/db:/var/lib/mysql
       - /data/mysql/mysqllog:/var/log/mysql
+      - /data/mysql/mysql-files:/var/lib/mysql-files/
 
   reaper:
     image: naturalis/museumapp_reaper:latest

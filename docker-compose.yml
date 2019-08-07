@@ -41,7 +41,7 @@ services:
       - /data/es-data:/usr/share/elasticsearch/data
 
   elastic_control:
-    image: naturalis/museumapp_elastic_control:v0.1
+    image: naturalis/museumapp_elastic_control:latest
     environment:
       - ES_PORT=${ES_PORT}
       - ES_HOST=${ES_HOST}

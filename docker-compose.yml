@@ -126,6 +126,8 @@ services:
       - /data/pipeline:/data
     env_file:
       - .env
+    links:
+      - mysql:mysql
 
   # kibana:
   #   image: docker.elastic.co/kibana/kibana:7.1.0

@@ -31,7 +31,7 @@ services:
     volumes:
       - /data/pipeline/es-data:/usr/share/elasticsearch/data
 
-  elastic_control:
+  api_control:
     image: naturalis/museumapp_elastic_control:latest
     env_file:
       - .env

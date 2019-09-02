@@ -118,9 +118,6 @@ services:
       - /data/pipeline:/data
     env_file:
       - .env
-    resources:
-      limits:
-        memory: 16G
 
   crs_harvester:
     image: naturalis/museumapp_crs_harvester:latest

@@ -8,39 +8,6 @@ x-logging:
   driver: json-file
 
 services:
-  api:
-    restart: on-failure:5
-    image: naturalis/museumapp_pipeline_api:latest
-    env_file:
-      - .env
-    ports:
-      - 5000:5000
-    volumes:
-      - /data/pipeline:/data
-    links:
-      - elastic:elastic
-
-  elastic:
-    restart: on-failure:5
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
-    environment:
-      - discovery.type=single-node
-    ports:
-      - 9200:9200
-    volumes:
-      - /data/pipeline/es-data:/usr/share/elasticsearch/data
-
-  api_control:
-    image: naturalis/museumapp_elastic_control:latest
-    env_file:
-      - .env
-    ports:
-      - 5001:5000
-    volumes:
-      - /data/pipeline:/data
-    links:
-      - elastic:elastic
-
   mysql:
     image: "mysql:5.7"
     restart: unless-stopped
@@ -61,6 +28,46 @@ services:
       - /data/pipeline/mysql/mysqllog:/var/log/mysql
       - /data/pipeline/mysql/mysql-files:/var/lib/mysql-files/
 
+  elastic:
+    restart: on-failure:5
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    volumes:
+      - /data/pipeline/es-data:/usr/share/elasticsearch/data
+
+  minio:
+    image: minio/minio:RELEASE.2019-06-13T01-41-13Z
+    restart: unless-stopped
+    logging: *default-logging
+    command: server /export
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_USER}
+      MINIO_SECRET_KEY: ${MINIO_PASS}
+    volumes:
+      - "${MINIO_DATA_DIR:-/data/pipeline/minio}:/export"
+    ports:
+      - 9000:9000
+
+  bootstrap:
+    image: naturalis/museumapp_bootstrap:latest
+    volumes:
+      - /data/pipeline:/data
+      - /data/pipeline/leenobject_images:/data/leenobject_images
+      - /data/pipeline/stubs:/data/stubs
+      - /data/pipeline/image_selector:/data/image_selector
+      - /data/pipeline/image_squares:/data/image_squares
+      - /data/pipeline/document_hashes:/data/document_hashes
+      - /data/pipeline/management_data:/data/management_data
+      - /data/pipeline/squared_images:/data/squared_images
+    env_file:
+      - .env
+    depends_on:
+      - "mysql"
+    command: ["./wait-for-it.sh", "--timeout 20", "-h mysql", "-p 3306"]
+
   reaper:
     image: naturalis/museumapp_reaper:latest
     env_file:
@@ -79,46 +86,6 @@ services:
     links:
       - mysql:mysql
 
-  minio:
-    image: minio/minio:RELEASE.2019-06-13T01-41-13Z
-    restart: unless-stopped
-    logging: *default-logging
-    command: server /export
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_USER}
-      MINIO_SECRET_KEY: ${MINIO_PASS}
-    volumes:
-      - "${MINIO_DATA_DIR:-/data/pipeline/minio}:/export"
-    ports:
-      - 9000:9000
-
-  image_selector:
-    image: naturalis/museumapp_image_selector:latest
-    ports:
-      - 8080:80
-    volumes:
-      - /data/pipeline:/data
-    env_file:
-      - .env
-
-  image_squares:
-    image: naturalis/museumapp_image_squares:latest
-    ports:
-      - 8081:80
-    volumes:
-      - /data/pipeline:/data
-    env_file:
-      - .env
-
-  pipeline:
-    image: naturalis/museumapp_pipeline:latest
-    ports:
-      - 8082:80
-    volumes:
-      - /data/pipeline:/data
-    env_file:
-      - .env
-
   crs_harvester:
     image: naturalis/museumapp_crs_harvester:latest
     volumes:
@@ -128,13 +95,75 @@ services:
     links:
       - mysql:mysql
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+  image_selector:
+    image: naturalis/museumapp_image_selector:latest
     ports:
-      - 5601:5601
-    # volumes:
-    #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
-    environment:
-      ELASTICSEARCH_HOSTS: http://elastic:9200
+      - 8080:80
+    volumes:
+      #- /data/pipeline:/data
+      - /data/pipeline/image_selector:/data/image_selector
+    env_file:
+      - .env
+    depends_on:
+      - "bootstrap"
+
+  image_squares:
+    image: naturalis/museumapp_image_squares:latest
+    ports:
+      - 8081:80
+    volumes:
+      #- /data/pipeline:/data
+      - /data/pipeline/image_squares:/data/image_squares
+    env_file:
+      - .env
+    depends_on:
+      - "bootstrap"
+
+  pipeline:
+    image: naturalis/museumapp_pipeline:latest
+    ports:
+      - 8082:80
+    volumes:
+      - /data/pipeline:/data
+      - /data/pipeline/documents:/data/documents
+      - /data/pipeline/log:/data/log
+      - /data/pipeline/queue:/data/queue
+    env_file:
+      - .env
+    depends_on:
+      - "bootstrap"
+
+  api:
+    restart: on-failure:5
+    image: naturalis/museumapp_pipeline_api:latest
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
+    volumes:
+      - /data/pipeline:/data
     links:
       - elastic:elastic
+
+  api_control:
+    image: naturalis/museumapp_elastic_control:latest
+    env_file:
+      - .env
+    ports:
+      - 5001:5000
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - elastic:elastic
+
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana-oss:7.2.0
+  #   ports:
+  #     - 5601:5601
+  #   # volumes:
+  #   #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+  #   environment:
+  #     ELASTICSEARCH_HOSTS: http://elastic:9200
+  #   links:
+  #     - elastic:elastic

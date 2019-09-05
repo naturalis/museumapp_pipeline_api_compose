@@ -8,6 +8,39 @@ x-logging:
   driver: json-file
 
 services:
+  api:
+    restart: on-failure:5
+    image: naturalis/museumapp_pipeline_api:latest
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - elastic:elastic
+
+  api_control:
+    image: naturalis/museumapp_elastic_control:latest
+    env_file:
+      - .env
+    ports:
+      - 5001:5000
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - elastic:elastic
+
+  elastic:
+    restart: on-failure:5
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    volumes:
+      - /data/pipeline/es-data:/usr/share/elasticsearch/data
+
   mysql:
     image: "mysql:5.7"
     restart: unless-stopped
@@ -27,16 +60,6 @@ services:
       - /data/pipeline/mysql/db:/var/lib/mysql
       - /data/pipeline/mysql/mysqllog:/var/log/mysql
       - /data/pipeline/mysql/mysql-files:/var/lib/mysql-files/
-
-  elastic:
-    restart: on-failure:5
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
-    environment:
-      - discovery.type=single-node
-    ports:
-      - 9200:9200
-    volumes:
-      - /data/pipeline/es-data:/usr/share/elasticsearch/data
 
   minio:
     image: minio/minio:RELEASE.2019-06-13T01-41-13Z
@@ -66,7 +89,7 @@ services:
       - .env
     depends_on:
       - "mysql"
-    command: ["./wait-for-it.sh", "--timeout 20", "-h mysql", "-p 3306"]
+    command: ["./wait-for-it.sh", "--timeout 10", "-h mysql", "-p 3306"]
 
   reaper:
     image: naturalis/museumapp_reaper:latest
@@ -133,28 +156,6 @@ services:
     depends_on:
       - "bootstrap"
 
-  api:
-    restart: on-failure:5
-    image: naturalis/museumapp_pipeline_api:latest
-    env_file:
-      - .env
-    ports:
-      - 5000:5000
-    volumes:
-      - /data/pipeline:/data
-    links:
-      - elastic:elastic
-
-  api_control:
-    image: naturalis/museumapp_elastic_control:latest
-    env_file:
-      - .env
-    ports:
-      - 5001:5000
-    volumes:
-      - /data/pipeline:/data
-    links:
-      - elastic:elastic
 
 
   # kibana:

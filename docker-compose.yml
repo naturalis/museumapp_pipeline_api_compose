@@ -10,60 +10,74 @@ x-logging:
 services:
   api:
     restart: on-failure:5
-    image: naturalis/museumapp_pipeline_api:1.0
+    image: naturalis/museumapp_pipeline_api:latest
     env_file:
       - .env
-    logging: *default-logging
     ports:
       - 5000:5000
     volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-    labels:
-      - "traefik.backend=museumapp-api"
-      - "traefik.enable=true"
-      - "traefik.port=5000"
-      - "${API_URL_CONFIG:-traefik.frontend.rule=Host:museumapp.naturalis.nl}"
-    links:
-      - elastic:elastic
-
-  api_control:
-    image: naturalis/museumapp_elastic_control:1.0
-    env_file:
-      - .env
-    logging: *default-logging
-    ports:
-      - 5001:5000
-    volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
+      - /data/pipeline:/data
     links:
       - elastic:elastic
 
   elastic:
     restart: on-failure:5
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
-    logging: *default-logging
     environment:
       - discovery.type=single-node
     ports:
       - 9200:9200
     volumes:
-      - "${BASE_PATH:-/data}/pipeline/es-data:/usr/share/elasticsearch/data"
+      - /data/pipeline/es-data:/usr/share/elasticsearch/data
+
+  api_control:
+    image: naturalis/museumapp_elastic_control:latest
+    env_file:
+      - .env
+    ports:
+      - 5001:5000
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - elastic:elastic
 
   mysql:
     image: "mysql:5.7"
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-    logging: *default-logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
+        max-file: '5'
     networks:
       - default
     ports:
         - "${MYSQL_EXTERNAL_PORT:-3307}:3306"
     volumes:
-      - "${BASE_PATH:-/data}/pipeline/mysql/initdb:/docker-entrypoint-initdb.d"
-      - "${BASE_PATH:-/data}/pipeline/mysql/db:/var/lib/mysql"
-      - "${BASE_PATH:-/data}/pipeline/mysql/mysqllog:/var/log/mysql"
-      - "${BASE_PATH:-/data}/pipeline/mysql/mysql-files:/var/lib/mysql-files/"
+      - /data/pipeline/mysql/initdb:/docker-entrypoint-initdb.d
+      - /data/pipeline/mysql/db:/var/lib/mysql
+      - /data/pipeline/mysql/mysqllog:/var/log/mysql
+      - /data/pipeline/mysql/mysql-files:/var/lib/mysql-files/
+
+  reaper:
+    image: naturalis/museumapp_reaper:latest
+    env_file:
+      - .env
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - mysql:mysql
+
+  nba_harvester:
+    image: naturalis/museumapp_nba_harvester:latest
+    env_file:
+      - .env
+    volumes:
+      - /data/pipeline:/data
+    links:
+      - mysql:mysql
 
   minio:
     image: minio/minio:RELEASE.2019-06-13T01-41-13Z
@@ -77,143 +91,50 @@ services:
       - "${MINIO_DATA_DIR:-/data/pipeline/minio}:/export"
     ports:
       - 9000:9000
-    labels:
-      - "traefik.backend=museumapp-minio"
-      - "traefik.enable=true"
-      - "traefik.port=9000"
-      - "${MINIO_URL_CONFIG:-traefik.frontend.rule=Host:minio_museumapp.naturalis.nl}"
-
-  bootstrap:
-    image: naturalis/museumapp_bootstrap:1.0
-    volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-      - "${BASE_PATH:-/data}/pipeline/leenobject_images:/data/leenobject_images"
-      - "${BASE_PATH:-/data}/pipeline/stubs:/data/stubs"
-      - "${BASE_PATH:-/data}/pipeline/image_selector:/data/image_selector"
-      - "${BASE_PATH:-/data}/pipeline/image_squares:/data/image_squares"
-      - "${BASE_PATH:-/data}/pipeline/document_hashes:/data/document_hashes"
-      - "${BASE_PATH:-/data}/pipeline/management_data:/data/management_data"
-      - "${BASE_PATH:-/data}/pipeline/squared_images:/data/squared_images"
-    env_file:
-      - .env
-    logging: *default-logging
-    depends_on:
-      - "mysql"
-
-  reaper:
-    image: naturalis/museumapp_reaper:1.0
-    env_file:
-      - .env
-    logging: *default-logging
-    volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-    links:
-      - mysql:mysql
-
-  nba_harvester:
-    image: naturalis/museumapp_nba_harvester:1.0
-    env_file:
-      - .env
-    logging: *default-logging
-    volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-    links:
-      - mysql:mysql
-
-  crs_harvester:
-    image: naturalis/museumapp_crs_harvester:1.0
-    volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-    logging: *default-logging
-    env_file:
-      - .env
-    links:
-      - mysql:mysql
 
   image_selector:
-    image: naturalis/museumapp_image_selector:1.0
+    image: naturalis/museumapp_image_selector:latest
     ports:
       - 8080:80
     volumes:
-      #- "${BASE_PATH:-/data}/pipeline:/data
-      - "${BASE_PATH:-/data}/pipeline/image_selector:/data/image_selector"
-    logging: *default-logging
+      - /data/pipeline:/data
     env_file:
       - .env
-    labels:
-      - "traefik.backend=museumapp-selector"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector_museumapp.naturalis.nl}"
-    depends_on:
-      - "bootstrap"
 
   image_squares:
-    image: naturalis/museumapp_image_squares:1.0
+    image: naturalis/museumapp_image_squares:latest
     ports:
       - 8081:80
     volumes:
-      #- "${BASE_PATH:-/data}/pipeline:/data"
-      - "${BASE_PATH:-/data}/pipeline/image_squares:/data/image_squares"
+      - /data/pipeline:/data
     env_file:
       - .env
-    logging: *default-logging
-    labels:
-      - "traefik.backend=museumapp-squares"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares_museumapp.naturalis.nl}"
-    depends_on:
-      - "bootstrap"
 
   pipeline:
-    image: naturalis/museumapp_pipeline:1.0
+    image: naturalis/museumapp_pipeline:latest
     ports:
       - 8082:80
     volumes:
-      - "${BASE_PATH:-/data}/pipeline:/data"
-      - "${BASE_PATH:-/data}/pipeline/documents:/data/documents"
-      - "${BASE_PATH:-/data}/pipeline/log:/data/log"
-      - "${BASE_PATH:-/data}/pipeline/queue:/data/queue"
+      - /data/pipeline:/data
     env_file:
       - .env
-    logging: *default-logging
-    labels:
-      - "traefik.backend=museumapp-pipeline"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${PIPELINE_URL_CONFIG:-traefik.frontend.rule=Host:pipeline_museumapp.naturalis.nl}"
-    depends_on:
-      - "bootstrap"
 
-
-  traefik:
-    image: traefik:1.7.14
-    restart: unless-stopped
-    environment:
-      - TRANSIP_PRIVATE_KEY_PATH=/.transip.key
-      - TRANSIP_ACCOUNT_NAME=${TRANSIP_ACCOUNT_NAME:-naturalis}
-    ports:
-      - 80:80
-      - 443:443
-      - 8081:8080
-    networks:
-      - web
-      - default
+  crs_harvester:
+    image: naturalis/museumapp_crs_harvester:latest
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${TRAEFIK_TOML_FILE:-./traefik.toml}:/traefik.toml
-      - ${ACME_JSON:-./acme.json}:/acme.json
-      - ./.transip.key:/.transip.key
-    logging: *default-logging
+      - /data/pipeline:/data
+    env_file:
+      - .env
+    links:
+      - mysql:mysql
 
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana-oss:7.2.0
-  #   ports:
-  #     - 5601:5601
-  #   # volumes:
-  #   #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
-  #   environment:
-  #     ELASTICSEARCH_HOSTS: http://elastic:9200
-  #   links:
-  #     - elastic:elastic
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    ports:
+      - 5601:5601
+    # volumes:
+    #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      ELASTICSEARCH_HOSTS: http://elastic:9200
+    links:
+      - elastic:elastic

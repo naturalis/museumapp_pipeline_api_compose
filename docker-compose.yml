@@ -25,18 +25,32 @@ services:
       - "${API_URL_CONFIG:-traefik.frontend.rule=Host:museumapp.naturalis.nl}"
     links:
       - elastic:elastic
+    depends_on:
+      - "bootstrap"
 
   api_control:
     image: naturalis/museumapp_elastic_control:1.0
     env_file:
       - .env
     logging: *default-logging
-    ports:
-      - 5001:5000
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
     links:
       - elastic:elastic
+    depends_on:
+      - "bootstrap"
+
+  document_loader:
+    image: naturalis/museumapp_document_load:1.0
+    env_file:
+      - .env
+    logging: *default-logging
+    volumes:
+      - "${BASE_PATH:-/data}/pipeline:/data"
+    links:
+      - elastic:elastic
+    depends_on:
+      - "bootstrap"
 
   elastic:
     restart: on-failure:5
@@ -87,6 +101,7 @@ services:
     image: naturalis/museumapp_bootstrap:1.0
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
+      - "${BASE_PATH:-/data}/pipeline:/data/log"
       - "${BASE_PATH:-/data}/pipeline/leenobject_images:/data/leenobject_images"
       - "${BASE_PATH:-/data}/pipeline/stubs:/data/stubs"
       - "${BASE_PATH:-/data}/pipeline/image_selector:/data/image_selector"
@@ -94,6 +109,11 @@ services:
       - "${BASE_PATH:-/data}/pipeline/document_hashes:/data/document_hashes"
       - "${BASE_PATH:-/data}/pipeline/management_data:/data/management_data"
       - "${BASE_PATH:-/data}/pipeline/squared_images:/data/squared_images"
+      - "${BASE_PATH:-/data}/pipeline/es-data:/usr/share/elasticsearch/data"
+      - "${BASE_PATH:-/data}/pipeline/documents/preview:${JSON_PREVIEW_PATH}"
+      - "${BASE_PATH:-/data}/pipeline/documents/publish:${JSON_PUBLISH_PATH}"
+      - "${BASE_PATH:-/data}/pipeline/documents/load:${JSON_LOAD_PATH}"
+      - "${BASE_PATH:-/data}/pipeline/scripts:${SCRIPTS_PATH}"
     env_file:
       - .env
     logging: *default-logging
@@ -130,46 +150,19 @@ services:
     links:
       - mysql:mysql
 
-  image_selector:
-    image: naturalis/museumapp_image_selector:1.0
-    ports:
-      - 8080:80
+  square_maker:
+    image: naturalis/museumapp_image_square_maker:1.0
     volumes:
-      #- "${BASE_PATH:-/data}/pipeline:/data
-      - "${BASE_PATH:-/data}/pipeline/image_selector:/data/image_selector"
-    logging: *default-logging
-    env_file:
-      - .env
-    labels:
-      - "traefik.backend=museumapp-selector"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector_museumapp.naturalis.nl}"
-    depends_on:
-      - "bootstrap"
-
-  image_squares:
-    image: naturalis/museumapp_image_squares:1.0
-    ports:
-      - 8081:80
-    volumes:
-      #- "${BASE_PATH:-/data}/pipeline:/data"
       - "${BASE_PATH:-/data}/pipeline/image_squares:/data/image_squares"
+      - "${BASE_PATH:-/data}/pipeline/squared_images:/data/squared_images"
+    logging: *default-logging
     env_file:
       - .env
-    logging: *default-logging
-    labels:
-      - "traefik.backend=museumapp-squares"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares_museumapp.naturalis.nl}"
-    depends_on:
-      - "bootstrap"
 
   pipeline:
     image: naturalis/museumapp_pipeline:1.0
     ports:
-      - 8082:80
+      - 8090:80
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
       - "${BASE_PATH:-/data}/pipeline/documents:/data/documents"
@@ -186,6 +179,39 @@ services:
     depends_on:
       - "bootstrap"
 
+  image_selector:
+    image: naturalis/museumapp_image_selector:1.0
+    ports:
+      - 8091:80
+    volumes:
+      - "${BASE_PATH:-/data}/pipeline/image_selector:/data/image_selector"
+    logging: *default-logging
+    env_file:
+      - .env
+    labels:
+      - "traefik.backend=museumapp-selector"
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector_museumapp.naturalis.nl}"
+    depends_on:
+      - "bootstrap"
+
+  image_squares:
+    image: naturalis/museumapp_image_squares:1.0
+    ports:
+      - 8092:80
+    volumes:
+      - "${BASE_PATH:-/data}/pipeline/image_squares:/data/image_squares"
+    env_file:
+      - .env
+    logging: *default-logging
+    labels:
+      - "traefik.backend=museumapp-squares"
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares_museumapp.naturalis.nl}"
+    depends_on:
+      - "bootstrap"
 
   traefik:
     image: traefik:1.7.14
@@ -217,3 +243,7 @@ services:
   #     ELASTICSEARCH_HOSTS: http://elastic:9200
   #   links:
   #     - elastic:elastic
+
+networks:
+  web:
+    external: true

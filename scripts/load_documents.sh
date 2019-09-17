@@ -6,7 +6,7 @@ LOAD_DIR=/data/pipeline/documents/load/
 SIGNAL_FILE_READY=${PUBLISH_DIR}.ready
 SIGNAL_FILE_WORKING=${PUBLISH_DIR}.busy
 
-DOCKER_DIR=/opt/museumapp_pipeline_api_compose
+DOCKER_DIR=/opt/composeproject
 
 MINIMUM_NUM_OF_FILES=1000
 NUM_OF_FILES=$(ls -1 ${PUBLISH_DIR}*.json 2> /dev/null | wc -l)

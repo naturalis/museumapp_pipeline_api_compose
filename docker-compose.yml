@@ -113,7 +113,6 @@ services:
       - "${BASE_PATH:-/data}/pipeline/documents/preview:${JSON_PREVIEW_PATH}"
       - "${BASE_PATH:-/data}/pipeline/documents/publish:${JSON_PUBLISH_PATH}"
       - "${BASE_PATH:-/data}/pipeline/documents/load:${JSON_LOAD_PATH}"
-      - "${BASE_PATH:-/data}/pipeline/scripts:${SCRIPTS_PATH}"
     env_file:
       - .env
     logging: *default-logging

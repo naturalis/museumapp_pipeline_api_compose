@@ -1,7 +1,7 @@
 #!/bin/bash
 
 QUEUE_PATH=/data/pipeline/queue/
-DOCKER_COMPOSE_PATH=/opt/museumapp_pipeline_api_compose/
+DOCKER_COMPOSE_PATH=/opt/composeproject/
 
 HAVE_JOB=false
     

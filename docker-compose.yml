@@ -80,7 +80,8 @@ services:
       - "${BASE_PATH:-/data}/pipeline/mysql/mysql-files:/var/lib/mysql-files/"
 
   minio:
-    image: minio/minio:RELEASE.2019-06-13T01-41-13Z
+    #image: minio/minio:RELEASE.2019-06-13T01-41-13Z
+    image: minio/minio:RELEASE.2019-09-11T19-53-16Z
     restart: unless-stopped
     logging: *default-logging
     command: server /export

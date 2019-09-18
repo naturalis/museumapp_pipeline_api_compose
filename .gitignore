@@ -1,5 +1,9 @@
 .env
-*.sh
+down.sh
+mysql.sh
+ps.sh
+pull.sh
+up.sh
 .transip.key
 traefik.toml
 acme.json

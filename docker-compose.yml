@@ -95,7 +95,7 @@ services:
       - "traefik.backend=museumapp-minio"
       - "traefik.enable=true"
       - "traefik.port=9000"
-      - "${MINIO_URL_CONFIG:-traefik.frontend.rule=Host:minio_museumapp.naturalis.nl}"
+      - "${MINIO_URL_CONFIG:-traefik.frontend.rule=Host:minio-museumapp.naturalis.nl}"
 
   bootstrap:
     image: naturalis/museumapp_bootstrap:1.0

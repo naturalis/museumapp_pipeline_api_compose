@@ -26,28 +26,16 @@ if [ ! "$HAVE_JOB" = true ]; then
     exit
 fi
 
-
-if [ "$SOURCE" = "image_squares" ] && [ "$ACTION" == "refresh" ]; then
-    echo "running $SOURCE $ACTION"
-    echo "{\"action\":\"refreshing\",\"source\":\"$SOURCE\"}" > $JOB
-
-    cd /data/pipeline/image_squares
-    /data/pipeline/image_squares/make_squares.sh
-
-    rm $JOB
-    echo "done"
-    exit
-fi
-
-
 SOURCES_GROUP_1=('natuurwijzer' 'tentoonstelling' 'topstukken' 'ttik')
 SOURCES_GROUP_2=('leenobjecten' 'favourites' 'taxa_no_objects' 'maps' 'brahms' 'nba' 'iucn')
 SOURCES_GROUP_3=('crs')
+SOURCES_GROUP_4=('image_squares')
 
 
 COMMAND_GROUP_1="reaper php ./public/run.php --source="
 COMMAND_GROUP_2="nba_harvester php run.php --source="
 COMMAND_GROUP_3="crs_harvester php run.php"
+COMMAND_GROUP_4="square_maker ./make_squares.sh"
 
 COMMAND=""
 
@@ -69,17 +57,26 @@ for t in ${SOURCES_GROUP_3[@]}; do
     fi
 done
 
+for t in ${SOURCES_GROUP_4[@]}; do
+    if [ "$SOURCE" == "$t" ]; then
+        COMMAND=$COMMAND_GROUP_4
+    fi
+done
+
 if [ "$COMMAND" = "" ]; then
     echo "no matching command for $SOURCE"
     exit
 fi
 
+
 if [ "$HAVE_JOB" = true ] && [ "$ACTION" == "refresh" ] ; then
     echo "running $SOURCE $ACTION"
     echo "{\"action\":\"refreshing\",\"source\":\"$SOURCE\"}" > $JOB
 
+    DOCKER_COMPOSE=$(which docker-compose)
+
     cd $DOCKER_COMPOSE_PATH
-    /usr/local/bin/docker-compose run $COMMAND
+    $DOCKER_COMPOSE run $COMMAND
     rm $JOB
     echo "done"
 fi

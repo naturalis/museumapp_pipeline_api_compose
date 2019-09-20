@@ -116,6 +116,7 @@ services:
       - 8082:80
     volumes:
       - /data/pipeline:/data
+      - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
 
@@ -138,3 +139,4 @@ services:
       ELASTICSEARCH_HOSTS: http://elastic:9200
     links:
       - elastic:elastic
+

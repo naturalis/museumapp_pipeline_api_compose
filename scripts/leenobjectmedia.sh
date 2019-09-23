@@ -1,10 +1,11 @@
 #!/bin/bash
 
-INCOMING_PATH=/data/pipeline/minio/leenobjectimages
-MEDIA_PATH=/data/pipeline/leenobject_images
+CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2,3)
+LEENOBJECTEN_PATH_INCOMING_HOST=$(grep LEENOBJECTEN_PATH_INCOMING_HOST ../.env | cut -d '=' -f2,3)
+LEENOBJECTEN_PATH_MEDIA_HOST=$(grep LEENOBJECTEN_PATH_MEDIA_HOST ../.env | cut -d '=' -f2,3)
 
 if [ ! -d "$MEDIA_PATH" ]; then
-    mkdir $MEDIA_PATH
+    mkdir $LEENOBJECTEN_PATH_MEDIA_HOST
 fi
 
-mv $INCOMING_PATH/* $MEDIA_PATH
+mv $LEENOBJECTEN_PATH_INCOMING_HOST/* $LEENOBJECTEN_PATH_MEDIA_HOST

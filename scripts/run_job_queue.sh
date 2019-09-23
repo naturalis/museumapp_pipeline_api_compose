@@ -1,11 +1,13 @@
 #!/bin/bash
 
-QUEUE_PATH=/data/pipeline/queue/
-DOCKER_COMPOSE_PATH=/opt/composeproject/
+# file is assumed to be run from a subdir of the directory holding the docker-compose.yml file
+
+JOB_QUEUE_PATH_HOST=$(grep JOB_QUEUE_PATH_HOST ../.env | cut -d '=' -f2,3)
+DOCKER_COMPOSE=$(which docker-compose)
 
 HAVE_JOB=false
     
-for file in $QUEUE_PATH*
+for file in $JOB_QUEUE_PATH_HOST*
 do
     if [[ -f $file ]]; then
         SOURCE=$(cat $file | jq -r '.source')
@@ -30,7 +32,6 @@ SOURCES_GROUP_1=('natuurwijzer' 'tentoonstelling' 'topstukken' 'ttik')
 SOURCES_GROUP_2=('leenobjecten' 'favourites' 'taxa_no_objects' 'maps' 'brahms' 'nba' 'iucn')
 SOURCES_GROUP_3=('crs')
 SOURCES_GROUP_4=('image_squares')
-
 
 COMMAND_GROUP_1="reaper php ./public/run.php --source="
 COMMAND_GROUP_2="nba_harvester php run.php --source="
@@ -73,9 +74,7 @@ if [ "$HAVE_JOB" = true ] && [ "$ACTION" == "refresh" ] ; then
     echo "running $SOURCE $ACTION"
     echo "{\"action\":\"refreshing\",\"source\":\"$SOURCE\"}" > $JOB
 
-    DOCKER_COMPOSE=$(which docker-compose)
-
-    cd $DOCKER_COMPOSE_PATH
+    cd ..
     $DOCKER_COMPOSE run $COMMAND
     rm $JOB
     echo "done"

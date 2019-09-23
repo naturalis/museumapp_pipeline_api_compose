@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # cron this file every minute!
-CRON_LOG=/data/pipeline/log/cron.log
+CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2,3)
 
 MINUTES=$(date "+%M")
 MINUTES_MOD_TEN=$(($MINUTES % 10))

@@ -175,7 +175,7 @@ services:
       - "traefik.backend=museumapp-pipeline"
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "${PIPELINE_URL_CONFIG:-traefik.frontend.rule=Host:pipeline_museumapp.naturalis.nl}"
+      - "${PIPELINE_URL_CONFIG:-traefik.frontend.rule=Host:pipeline-museumapp.naturalis.nl}"
     depends_on:
       - "bootstrap"
 
@@ -192,7 +192,7 @@ services:
       - "traefik.backend=museumapp-selector"
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector_museumapp.naturalis.nl}"
+      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector-museumapp.naturalis.nl}"
     depends_on:
       - "bootstrap"
 
@@ -209,7 +209,7 @@ services:
       - "traefik.backend=museumapp-squares"
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares_museumapp.naturalis.nl}"
+      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares-museumapp.naturalis.nl}"
     depends_on:
       - "bootstrap"
 

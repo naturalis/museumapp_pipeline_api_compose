@@ -13,7 +13,6 @@ $DOCKER_COMPOSE run square_maker ./make_squares.sh >> $CRON_LOG
 $DOCKER_COMPOSE run reaper php ./public/run.php --source=natuurwijzer >> $CRON_LOG
 $DOCKER_COMPOSE run reaper php ./public/run.php --source=tentoonstelling >> $CRON_LOG
 $DOCKER_COMPOSE run reaper php ./public/run.php --source=topstukken >> $CRON_LOG
-$DOCKER_COMPOSE run nba_harvester php run.php --source=brahms >> $CRON_LOG
 $DOCKER_COMPOSE run nba_harvester php run.php --source=leenobjecten >> $CRON_LOG
 $DOCKER_COMPOSE run reaper php ./public/run.php --source=ttik >> $CRON_LOG
 $DOCKER_COMPOSE run nba_harvester php run.php --source=nba >> $CRON_LOG

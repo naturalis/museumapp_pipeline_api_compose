@@ -4,7 +4,7 @@ CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2,3)
 LEENOBJECTEN_PATH_INCOMING_HOST=$(grep LEENOBJECTEN_PATH_INCOMING_HOST ../.env | cut -d '=' -f2,3)
 LEENOBJECTEN_PATH_MEDIA_HOST=$(grep LEENOBJECTEN_PATH_MEDIA_HOST ../.env | cut -d '=' -f2,3)
 
-if [ ! -d "$MEDIA_PATH" ]; then
+if [ ! -d "$LEENOBJECTEN_PATH_MEDIA_HOST" ]; then
     mkdir $LEENOBJECTEN_PATH_MEDIA_HOST
 fi
 

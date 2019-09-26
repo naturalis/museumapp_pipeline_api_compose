@@ -20,7 +20,6 @@ fi
 
 TIME_OF_DAY=$(date "+%H:%M")
 UPDATE_ALL="03:00"
-LOCK_FILE=${JOB_QUEUE_PATH_HOST}.update_lock
 
 if [ "$TIME_OF_DAY" == "$UPDATE_ALL" ]; then
     ./update_all.sh

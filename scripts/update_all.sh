@@ -5,6 +5,7 @@
 DOCKER_COMPOSE=$(which docker-compose)
 CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2)
 JOB_QUEUE_PATH_HOST=$(grep JOB_QUEUE_PATH_HOST ../.env | cut -d '=' -f2)
+LOCK_FILE=${JOB_QUEUE_PATH_HOST}.update_lock
 
 if [ -f "$LOCK_FILE" ]; then
     echo "update in progress (lock file exists); exiting"

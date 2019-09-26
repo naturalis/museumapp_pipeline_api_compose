@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # cron this file every minute!
-CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2,3)
+CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2)
+JOB_QUEUE_PATH_HOST=$(grep JOB_QUEUE_PATH_HOST ../.env | cut -d '=' -f2)
 
 MINUTES=$(date "+%M")
 MINUTES_MOD_TEN=$(($MINUTES % 10))
@@ -20,14 +21,14 @@ fi
 
 TIME_OF_DAY=$(date "+%H:%M")
 UPDATE_ALL="03:00"
-LOCK_FILE=./.update_lock
+LOCK_FILE=${JOB_QUEUE_PATH_HOST}.update_lock
 
 if [ "$TIME_OF_DAY" == "$UPDATE_ALL" ]; then
     if [ -f "$LOCK_FILE" ]; then
         echo "update in progress (lock file); exiting"
         exit
     else
-        echo "processing" > $LOCK_FILE
+        date > $LOCK_FILE
         ./update_all.sh
         rm $LOCK_FILE
     fi

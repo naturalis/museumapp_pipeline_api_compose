@@ -25,7 +25,7 @@ The repository is compatible with the puppet naturalis/puppet-docker_compose man
 
 #### preparation
 - Copy env.template to .env and adjust variables. 
-
+- Copy traefik/traefik.dev.toml to traefik/traefik.toml and adjust
 
 ````
 docker-compose up -d

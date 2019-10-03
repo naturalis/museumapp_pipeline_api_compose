@@ -19,10 +19,11 @@ services:
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
     labels:
-      - "traefik.backend=museumapp-api"
-      - "traefik.enable=true"
-      - "traefik.port=5000"
-      - "${API_URL_CONFIG:-traefik.frontend.rule=Host:museumapp.naturalis.nl}"
+      - traefik.enable=${TRAEFIK_ENABLE:-true}
+      - traefik.http.routers.museumappapi.entrypoints=https
+      - traefik.http.routers.museumappapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-default}
+      - traefik.http.routers.museumappapi.tls=true
+      - traefik.http.routers.museumappapi.rule=${API_URL_CONFIG:-Host(`museumapp.naturalis.nl`)}
     links:
       - elastic:elastic
     depends_on:
@@ -93,10 +94,11 @@ services:
     ports:
       - 9000:9000
     labels:
-      - "traefik.backend=museumapp-minio"
-      - "traefik.enable=true"
-      - "traefik.port=9000"
-      - "${MINIO_URL_CONFIG:-traefik.frontend.rule=Host:minio-museumapp.naturalis.nl}"
+      - traefik.enable=${TRAEFIK_ENABLE:-true}
+      - traefik.http.routers.museumappminio.entrypoints=https
+      - traefik.http.routers.museumappminio.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-default}
+      - traefik.http.routers.museumappminio.tls=true
+      - traefik.http.routers.museumappminio.rule=${MINIO_URL_CONFIG:-Host(`minio-museumapp.naturalis.nl`)}
 
   bootstrap:
     image: naturalis/museumapp_bootstrap:1.0
@@ -172,10 +174,11 @@ services:
       - .env
     logging: *default-logging
     labels:
-      - "traefik.backend=museumapp-pipeline"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${PIPELINE_URL_CONFIG:-traefik.frontend.rule=Host:pipeline-museumapp.naturalis.nl}"
+      - traefik.enable=${TRAEFIK_ENABLE:-true}
+      - traefik.http.routers.museumappipeline.entrypoints=https
+      - traefik.http.routers.museumappipeline.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-default}
+      - traefik.http.routers.museumappipeline.tls=true
+      - traefik.http.routers.museumappipeline.rule=${PIPELINE_URL_CONFIG:-Host(`pipeline-museumapp.naturalis.nl`)}
     depends_on:
       - "bootstrap"
 
@@ -189,10 +192,11 @@ services:
     env_file:
       - .env
     labels:
-      - "traefik.backend=museumapp-selector"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SELECTOR_URL_CONFIG:-traefik.frontend.rule=Host:selector-museumapp.naturalis.nl}"
+      - traefik.enable=${TRAEFIK_ENABLE:-true}
+      - traefik.http.routers.museumappselector.entrypoints=https
+      - traefik.http.routers.museumappselector.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-default}
+      - traefik.http.routers.museumappselector.tls=true
+      - traefik.http.routers.museumappselector.rule=${SELECTOR_URL_CONFIG:-Host(`selector-museumapp.naturalis.nl`)}
     depends_on:
       - "bootstrap"
 
@@ -206,32 +210,29 @@ services:
       - .env
     logging: *default-logging
     labels:
-      - "traefik.backend=museumapp-squares"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "${SQUARES_URL_CONFIG:-traefik.frontend.rule=Host:squares-museumapp.naturalis.nl}"
+      - traefik.enable=${TRAEFIK_ENABLE:-true}
+      - traefik.http.routers.museumappsquares.entrypoints=https
+      - traefik.http.routers.museumappsquares.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-default}
+      - traefik.http.routers.museumappsquares.tls=true
+      - traefik.http.routers.museumappsquares.rule=${SQUARES_URL_CONFIG:-Host(`squares-museumapp.naturalis.nl`)}
     depends_on:
       - "bootstrap"
 
   traefik:
-    image: traefik:1.7.14
+    image: traefik:2.0.1
+    container_name: traefik
     restart: unless-stopped
-    environment:
-      - TRANSIP_PRIVATE_KEY_PATH=/.transip.key
-      - TRANSIP_ACCOUNT_NAME=${TRANSIP_ACCOUNT_NAME:-naturalis}
     ports:
       - 80:80
       - 443:443
       - 8081:8080
     networks:
-      - web
       - default
+      - web
+    logging: *default-logging
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${TRAEFIK_TOML_FILE:-./traefik.toml}:/traefik.toml
-      - ${ACME_JSON:-./acme.json}:/acme.json
-      - ./.transip.key:/.transip.key
-    logging: *default-logging
+      - ./traefik:/etc/traefik
 
   # kibana:
   #   image: docker.elastic.co/kibana/kibana-oss:7.2.0

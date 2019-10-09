@@ -29,7 +29,7 @@ if [ ! "$HAVE_JOB" = true ]; then
 fi
 
 SOURCES_GROUP_1=('natuurwijzer' 'tentoonstelling' 'topstukken' 'ttik')
-SOURCES_GROUP_2=('leenobjecten' 'favourites' 'taxa_no_objects' 'maps' 'brahms' 'nba' 'iucn')
+SOURCES_GROUP_2=('leenobjecten' 'favourites' 'taxa_no_objects' 'maps' 'brahms' 'nba' 'iucn' 'ttik_photo_species')
 SOURCES_GROUP_3=('crs')
 SOURCES_GROUP_4=('image_squares')
 

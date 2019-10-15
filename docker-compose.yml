@@ -183,7 +183,7 @@ services:
       - "bootstrap"
 
   image_selector:
-    image: naturalis/museumapp_image_selector:1.0
+    image: naturalis/museumapp_image_selector:1.1
     ports:
       - 8091:80
     volumes:
@@ -201,7 +201,7 @@ services:
       - "bootstrap"
 
   image_squares:
-    image: naturalis/museumapp_image_squares:1.0
+    image: naturalis/museumapp_image_squares:1.1
     ports:
       - 8092:80
     volumes:

@@ -4,6 +4,8 @@
 CRON_LOG=$(grep CRON_LOG ../.env | cut -d '=' -f2)
 
 MINUTES=$(date "+%M")
+MINUTES=$(echo $MINUTES | sed 's/^0*//')
+
 MINUTES_MOD_TEN=$(($MINUTES % 10))
 MINUTES_MOD_ONE=$(($MINUTES % 1)) # yes i know
 

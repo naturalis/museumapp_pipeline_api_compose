@@ -142,7 +142,7 @@ services:
       - mysql:mysql
 
   crs_harvester:
-    image: naturalis/museumapp_crs_harvester:1.0
+    image: naturalis/museumapp_crs_harvester:1.1
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
     logging: *default-logging

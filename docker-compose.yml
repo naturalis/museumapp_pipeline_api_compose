@@ -132,7 +132,7 @@ services:
       - mysql:mysql
 
   nba_harvester:
-    image: naturalis/museumapp_nba_harvester:1.1
+    image: naturalis/museumapp_nba_harvester:1.2
     env_file:
       - .env
     logging: *default-logging
@@ -161,7 +161,7 @@ services:
       - .env
 
   pipeline:
-    image: naturalis/museumapp_pipeline:1.1
+    image: naturalis/museumapp_pipeline:1.2
     ports:
       - 8090:80
     volumes:

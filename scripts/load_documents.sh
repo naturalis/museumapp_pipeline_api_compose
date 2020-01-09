@@ -4,6 +4,7 @@
 
 JSON_PUBLISH_PATH_HOST=$(grep JSON_PUBLISH_PATH_HOST ../.env | cut -d '=' -f2,3)
 JSON_LOAD_PATH_HOST=$(grep JSON_LOAD_PATH_HOST ../.env | cut -d '=' -f2,3)
+JSON_CUSTOM_PATH_HOST=$(grep JSON_CUSTOM_PATH_HOST ../.env | cut -d '=' -f2,3)
 
 SIGNAL_FILE_READY=${JSON_PUBLISH_PATH_HOST}.ready
 SIGNAL_FILE_WORKING=${JSON_PUBLISH_PATH_HOST}.busy
@@ -38,6 +39,12 @@ rm $SIGNAL_FILE_READY
 touch $SIGNAL_FILE_WORKING 
 rm ${JSON_LOAD_PATH_HOST}*.json
 mv ${JSON_PUBLISH_PATH_HOST}*.json $JSON_LOAD_PATH_HOST
+
+NUM_OF_CUSTOM_FILES=$(ls -1 ${JSON_CUSTOM_PATH_HOST}*.json 2> /dev/null | wc -l)
+if [ "$NUM_OF_CUSTOM_FILES" -gt 0 ]; then
+  echo "copying & loading $NUM_OF_CUSTOM_FILES custom documents"
+  cp ${JSON_CUSTOM_PATH_HOST}*.json $JSON_LOAD_PATH_HOST
+fi
 
 cd ..
 

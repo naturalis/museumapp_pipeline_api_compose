@@ -122,8 +122,8 @@ services:
       - "mysql"
 
   reaper:
-    image: test:test
-    #    image: naturalis/museumapp_reaper:1.1
+    # image: test:test
+    image: naturalis/museumapp_reaper:1.1
     env_file:
       - .env
     logging: *default-logging

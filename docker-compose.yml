@@ -221,8 +221,8 @@ services:
 
   translator:
     image: naturalis/museumapp_translator:1.0
-    # volumes:
-    #   - "${BASE_PATH:-/data}/pipeline/image_squares:/data/image_squares"
+    volumes:
+      - "${BASE_PATH:-/data}/pipeline:/data"
     env_file:
       - .env
     logging: *default-logging

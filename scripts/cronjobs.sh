@@ -24,5 +24,5 @@ TIME_OF_DAY=$(date "+%H:%M")
 UPDATE_ALL="03:00"
 
 if [ "$TIME_OF_DAY" == "$UPDATE_ALL" ]; then
-    ./update_all.sh
+    # ./update_all.sh
 fi

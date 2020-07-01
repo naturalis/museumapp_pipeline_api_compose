@@ -100,7 +100,7 @@ services:
       - traefik.http.routers.museumappminio.rule=${MINIO_URL_CONFIG:-Host(`minio-museumapp.naturalis.nl`)}
 
   bootstrap:
-    image: naturalis/museumapp_bootstrap:1.1
+    image: naturalis/museumapp_bootstrap:1.2
     volumes:
       - "${BASE_PATH:-/data}/pipeline:/data"
       - "${BASE_PATH:-/data}/pipeline:/data/log"
@@ -115,6 +115,7 @@ services:
       - "${BASE_PATH:-/data}/pipeline/documents/preview:${JSON_PREVIEW_PATH}"
       - "${BASE_PATH:-/data}/pipeline/documents/publish:${JSON_PUBLISH_PATH}"
       - "${BASE_PATH:-/data}/pipeline/documents/load:${JSON_LOAD_PATH}"
+      - "${BASE_PATH:-/data}/pipeline/export:${TRANSLATOR_EXPORT_PATH}"
     env_file:
       - .env
     logging: *default-logging

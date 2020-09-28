@@ -10,7 +10,7 @@ x-logging:
 services:
   api:
     restart: on-failure:5
-    image: naturalis/museumapp_pipeline_api:development
+    image: naturalis/museumapp_pipeline_api:1.2
     env_file:
       - .env
     logging: *default-logging

@@ -123,7 +123,7 @@ services:
       - "mysql"
 
   reaper:
-    image: naturalis/museumapp_reaper:1.2
+    image: naturalis/museumapp_reaper:1.3
     env_file:
       - .env
     logging: *default-logging
